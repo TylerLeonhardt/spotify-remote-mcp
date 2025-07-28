@@ -1,16 +1,16 @@
 import { InMemoryEventStore } from '@modelcontextprotocol/sdk/examples/shared/inMemoryEventStore.js';
 import { requireBearerAuth } from '@modelcontextprotocol/sdk/server/auth/middleware/bearerAuth.js';
 import { getOAuthProtectedResourceMetadataUrl, mcpAuthMetadataRouter } from '@modelcontextprotocol/sdk/server/auth/router.js';
-import { AuthInfo } from '@modelcontextprotocol/sdk/server/auth/types.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { OAuthMetadata } from '@modelcontextprotocol/sdk/shared/auth.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
-import { SpotifyApi } from '@spotify/web-api-ts-sdk';
 import express, { Request, Response } from 'express';
 import { randomUUID } from 'node:crypto';
 import { toolsRegistry } from './toolsRegistry';
 import './tools.contribution.js';
+
+const SCOPES = ['user-read-private', 'user-read-email', 'user-read-playback-state', 'user-modify-playback-state'];
 
 // Create an MCP server with implementation details
 const getServer = () => {
@@ -30,14 +30,12 @@ const getServer = () => {
 };
 
 const MCP_PORT = 3000;
-// const AUTH_PORT = 3001;
 
 const app = express();
 app.use(express.json());
 
 // Create auth middleware for MCP endpoints
 const mcpServerUrl = new URL(`http://localhost:${MCP_PORT}`);
-// const authServerUrl = new URL(`http://localhost:${AUTH_PORT}`);
 
 const oauthMetadata: OAuthMetadata = JSON.parse('{"issuer":"https://accounts.spotify.com","authorization_endpoint":"https://accounts.spotify.com/oauth2/v2/auth","token_endpoint":"https://accounts.spotify.com/api/token","userinfo_endpoint":"https://accounts.spotify.com/oidc/userinfo/v1","revocation_endpoint":"https://accounts.spotify.com/oauth2/revoke/v1","scopes_supported":["email","openid","profile"],"jwks_uri":"https://accounts.spotify.com/oidc/certs/v1","response_types_supported":["code","none"],"response_modes_supported":["query"],"code_challenge_methods_supported":["S256"],"grant_types_supported":["authorization_code","refresh_token","urn:ietf:params:oauth:grant-type:device_code","urn:ietf:params:oauth:grant-type:jwt-bearer"],"acr_values_supported":["urn:spotify:sso:acr:legacy","urn:spotify:sso:acr:bronze:v1","urn:spotify:sso:acr:silver:v1","urn:spotify:sso:acr:artist:2fa"],"subject_types_supported":["pairwise"],"id_token_signing_alg_values_supported":["RS256"],"claims_supported":["aud","email","email_verified","exp","iat","iss","name","picture","preferred_username","sub"],"token_endpoint_auth_methods_supported":["client_secret_basic","client_secret_post"],"ui_locales_supported":["af-ZA","am-ET","ar","az-AZ","bg-BG","bn-IN","bp","cs","da-DK","de","el","en","es","es-ES","et-EE","fa-IR","fi","tl","fr","fr-CA","gu-IN","he-IL","hi-IN","hr-HR","hu","id","is-IS","it","ja","kn-IN","ko","lv-LV","lt-LT","ml-IN","mr-IN","ms","nb-NO","ne-NP","nl","or-IN","pa-IN","pa-PK","pl","pt-BR","pt-PT","ro-RO","ru","sk-SK","sl-SI","sr-RS","sv","sw","ta-IN","te-IN","th-TH","tr","uk-UA","ur","vi-VN","zh-CN","zh-TW","zu-ZA"]}') // setupAuthServer(authServerUrl);
 
@@ -58,8 +56,9 @@ const tokenVerifier = {
 
         return {
             token,
-            clientId: 'f23c88b62d7c4eaa831fc74c1005f886',
-            scopes: ['user-read-private', 'user-read-email', 'user-read-playback-state', 'user-modify-playback-state'],
+            // NOTE: This isn't used but if it is, then we need a way to obtain it.
+            clientId: 'UNUSED',
+            scopes: SCOPES,
             expiresAt: Date.now() / 1000 + 3600, // Set to 1 hour from now for demo purposes
         }
     }
@@ -68,13 +67,13 @@ const tokenVerifier = {
 app.use(mcpAuthMetadataRouter({
     oauthMetadata,
     resourceServerUrl: mcpServerUrl,
-    scopesSupported: ['user-read-private', 'user-read-email', 'user-read-playback-state', 'user-modify-playback-state'],
+    scopesSupported: SCOPES,
     resourceName: 'Spotify (Unofficial)',
 }));
 
 const authMiddleware = requireBearerAuth({
     verifier: tokenVerifier,
-    requiredScopes: ['user-read-private', 'user-read-email', 'user-read-playback-state', 'user-modify-playback-state'],
+    requiredScopes: SCOPES,
     resourceMetadataUrl: getOAuthProtectedResourceMetadataUrl(mcpServerUrl),
 });
 
