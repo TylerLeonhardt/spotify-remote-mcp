@@ -5,15 +5,16 @@ import { toolsRegistry } from '../toolsRegistry';
 
 // Helper function to determine URI type
 function getUriType(uri: string): 'track' | 'album' | 'playlist' | 'unknown' {
-    if (uri.includes(':track:')) return 'track';
-    if (uri.includes(':album:')) return 'album';
-    if (uri.includes(':playlist:')) return 'playlist';
+    // Handle both spotify: URIs and HTTP URLs
+    if (uri.includes(':track:') || uri.includes('/track/')) return 'track';
+    if (uri.includes(':album:') || uri.includes('/album/')) return 'album';
+    if (uri.includes(':playlist:') || uri.includes('/playlist/')) return 'playlist';
     return 'unknown';
 }
 
 toolsRegistry.register((server) => server.tool(
     'play_songs',
-    'Start playing songs on a Spotify device. If no device is specified, will use the currently active device or list available devices.',
+    'Start playing tracks, albums, or playlists on a Spotify device. If no device is specified, will use the currently active device or list available devices.',
     {
         uris: z.array(z.string()).describe("Array of Spotify URIs (tracks, albums, playlists) to play"),
     },
