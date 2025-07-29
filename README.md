@@ -8,7 +8,8 @@ A Model Context Protocol (MCP) server that provides Spotify integration capabili
 
 - **Search**: Search for albums, artists, playlists, tracks, shows, episodes, and audiobooks
 - **Music Recommendations**: Get personalized track recommendations based on genres and audio features
-- **Playback Control**: Start playing songs on active Spotify devices
+- **Playback Control**: Start playing songs on active Spotify devices with device selection by name
+- **Device Management**: List available Spotify Connect devices and target specific devices by name
 - **User Profile**: Access authenticated user's Spotify profile information
 - **OAuth2 Authentication**: Secure OAuth2 integration with Spotify's API
 - **Session Management**: Persistent session handling with resumability support
@@ -43,12 +44,20 @@ Get AI-powered track recommendations from Spotify.
 - `limit` (number): Number of recommendations (1-100, default: 10)
 
 ### 3. `play_songs`
-Start playing songs on an active Spotify device.
+Start playing songs on a Spotify device. Can target specific devices by name.
 
 **Parameters:**
 - `uris` (array): Spotify URIs for tracks, albums, or playlists to play
+- `device_name` (string, optional): Name of the Spotify device to play on (e.g., 'Kitchen', 'Office')
 
-### 4. `whoami`
+### 4. `list_devices`
+List all available Spotify Connect devices that can be used for playback.
+
+**Parameters:** None
+
+**Returns:** List of available devices with their names, types, and status (active/inactive)
+
+### 5. `whoami`
 Get the authenticated user's Spotify profile information.
 
 **Parameters:** None
