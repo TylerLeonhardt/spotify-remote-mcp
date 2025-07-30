@@ -1,0 +1,8 @@
+name: spotify-remote-mcp
+infra:
+  provider: bicep
+services:
+  spotify-mcp-server:
+    project: .
+    host: appservice
+    language: ts

@@ -29,13 +29,13 @@ const getServer = () => {
     return server;
 };
 
-const MCP_PORT = 3000;
+const MCP_PORT = process.env.PORT || 3000;
 
 const app = express();
 app.use(express.json());
 
 // Create auth middleware for MCP endpoints
-const mcpServerUrl = new URL(`http://localhost:${MCP_PORT}`);
+const mcpServerUrl = process.env.WEBSITE_HOSTNAME ? new URL(`https://${process.env.WEBSITE_HOSTNAME}`) : new URL(`http://localhost:${MCP_PORT}`);
 
 const oauthMetadata: OAuthMetadata = JSON.parse('{"issuer":"https://accounts.spotify.com","authorization_endpoint":"https://accounts.spotify.com/oauth2/v2/auth","token_endpoint":"https://accounts.spotify.com/api/token","userinfo_endpoint":"https://accounts.spotify.com/oidc/userinfo/v1","revocation_endpoint":"https://accounts.spotify.com/oauth2/revoke/v1","scopes_supported":["email","openid","profile"],"jwks_uri":"https://accounts.spotify.com/oidc/certs/v1","response_types_supported":["code","none"],"response_modes_supported":["query"],"code_challenge_methods_supported":["S256"],"grant_types_supported":["authorization_code","refresh_token","urn:ietf:params:oauth:grant-type:device_code","urn:ietf:params:oauth:grant-type:jwt-bearer"],"acr_values_supported":["urn:spotify:sso:acr:legacy","urn:spotify:sso:acr:bronze:v1","urn:spotify:sso:acr:silver:v1","urn:spotify:sso:acr:artist:2fa"],"subject_types_supported":["pairwise"],"id_token_signing_alg_values_supported":["RS256"],"claims_supported":["aud","email","email_verified","exp","iat","iss","name","picture","preferred_username","sub"],"token_endpoint_auth_methods_supported":["client_secret_basic","client_secret_post"],"ui_locales_supported":["af-ZA","am-ET","ar","az-AZ","bg-BG","bn-IN","bp","cs","da-DK","de","el","en","es","es-ES","et-EE","fa-IR","fi","tl","fr","fr-CA","gu-IN","he-IL","hi-IN","hr-HR","hu","id","is-IS","it","ja","kn-IN","ko","lv-LV","lt-LT","ml-IN","mr-IN","ms","nb-NO","ne-NP","nl","or-IN","pa-IN","pa-PK","pl","pt-BR","pt-PT","ro-RO","ru","sk-SK","sl-SI","sr-RS","sv","sw","ta-IN","te-IN","th-TH","tr","uk-UA","ur","vi-VN","zh-CN","zh-TW","zu-ZA"]}') // setupAuthServer(authServerUrl);
 
@@ -207,6 +207,10 @@ const mcpDeleteHandler = async (req: Request, res: Response) => {
 
 
 app.delete('/mcp', authMiddleware, mcpDeleteHandler);
+
+app.get('/hi', (req: Request, res: Response) => {
+    res.send('Hello, world!');
+});
 
 app.listen(MCP_PORT, () => {
     console.log(`MCP Streamable HTTP Server listening on port ${MCP_PORT}`);
