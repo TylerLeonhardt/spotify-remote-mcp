@@ -1,6 +1,6 @@
 import { CallToolResult, ServerNotification, ServerRequest } from "@modelcontextprotocol/sdk/types.js";
 import { getSpotifyApi } from '../spotifyApi';
-import { ITool, toolsRegistry2, ToolsRegistry2 } from '../toolsRegistry';
+import { ITool, toolsRegistry, ToolsRegistry } from '../toolsRegistry';
 import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 
 export class WhoAmITool implements ITool<{}> {
@@ -32,4 +32,4 @@ export class WhoAmITool implements ITool<{}> {
         };
     }
 }
-toolsRegistry2.register(new WhoAmITool());
+toolsRegistry.register(new WhoAmITool());

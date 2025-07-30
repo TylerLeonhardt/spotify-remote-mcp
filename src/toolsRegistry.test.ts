@@ -1,56 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ToolsRegistry, ToolsRegistry2, ITool } from './toolsRegistry';
+import { ToolsRegistry, ITool } from './toolsRegistry';
 import { McpServer, RegisteredTool } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { CallToolResult, ServerNotification, ServerRequest } from "@modelcontextprotocol/sdk/types.js";
 import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 
-describe('ToolsRegistry (legacy)', () => {
+describe('ToolsRegistry', () => {
     let registry: ToolsRegistry;
-    let mockServer: McpServer;
-
-    beforeEach(() => {
-        registry = new ToolsRegistry();
-        mockServer = {} as McpServer;
-    });
-
-    it('should register tool factories', () => {
-        const mockFactory = vi.fn(() => ({} as RegisteredTool));
-        
-        registry.register(mockFactory);
-        
-        // Should not call factory during registration
-        expect(mockFactory).not.toHaveBeenCalled();
-    });
-
-    it('should get all tools by calling factories with server', () => {
-        const mockTool1 = { name: 'tool1' } as unknown as RegisteredTool;
-        const mockTool2 = { name: 'tool2' } as unknown as RegisteredTool;
-        const factory1 = vi.fn(() => mockTool1);
-        const factory2 = vi.fn(() => mockTool2);
-        
-        registry.register(factory1);
-        registry.register(factory2);
-        
-        const tools = registry.getAllTools(mockServer);
-        
-        expect(factory1).toHaveBeenCalledWith(mockServer);
-        expect(factory2).toHaveBeenCalledWith(mockServer);
-        expect(tools).toEqual([mockTool1, mockTool2]);
-    });
-
-    it('should return empty array when no tools registered', () => {
-        const tools = registry.getAllTools(mockServer);
-        expect(tools).toEqual([]);
-    });
-});
-
-describe('ToolsRegistry2', () => {
-    let registry: ToolsRegistry2;
     let mockServer: McpServer;
     let mockTool: RegisteredTool;
 
     beforeEach(() => {
-        registry = new ToolsRegistry2();
+        registry = new ToolsRegistry();
         mockTool = {} as RegisteredTool;
         mockServer = {
             tool: vi.fn(() => mockTool)

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { CallToolResult, ServerNotification, ServerRequest } from "@modelcontextprotocol/sdk/types.js";
 import { getSpotifyApi } from '../spotifyApi';
-import { ITool, toolsRegistry2 } from '../toolsRegistry';
+import { ITool, toolsRegistry } from '../toolsRegistry';
 import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 
 // Helper function to determine URI type
@@ -199,4 +199,4 @@ export class PlaySongsTool implements ITool<{
     }
 }
 
-toolsRegistry2.register(new PlaySongsTool());
+toolsRegistry.register(new PlaySongsTool());

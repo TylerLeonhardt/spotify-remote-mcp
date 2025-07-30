@@ -1,6 +1,6 @@
 import { CallToolResult, ServerNotification, ServerRequest } from "@modelcontextprotocol/sdk/types.js";
 import { getSpotifyApi } from '../spotifyApi';
-import { ITool, toolsRegistry2 } from '../toolsRegistry';
+import { ITool, toolsRegistry } from '../toolsRegistry';
 import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 
 export class ListDevicesTool implements ITool<{}> {
@@ -63,4 +63,4 @@ export class ListDevicesTool implements ITool<{}> {
     }
 }
 
-toolsRegistry2.register(new ListDevicesTool());
+toolsRegistry.register(new ListDevicesTool());

@@ -7,7 +7,7 @@ import { OAuthMetadata } from '@modelcontextprotocol/sdk/shared/auth.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import express, { Request, Response } from 'express';
 import { randomUUID } from 'node:crypto';
-import { toolsRegistry, toolsRegistry2 } from './toolsRegistry';
+import { toolsRegistry } from './toolsRegistry';
 import './tools.contribution.js';
 
 const SCOPES = ['user-read-private', 'user-read-email', 'user-read-playback-state', 'user-modify-playback-state'];
@@ -24,8 +24,7 @@ const getServer = () => {
         }
     );
 
-    toolsRegistry.getAllTools(server);
-    toolsRegistry2.registerToServer(server);
+    toolsRegistry.registerToServer(server);
 
     return server;
 };

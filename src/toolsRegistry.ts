@@ -1,20 +1,6 @@
 import { McpServer, RegisteredTool, ToolCallback } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { ZodRawShape } from 'zod';
 
-export class ToolsRegistry {
-    private toolFactories: ((server: McpServer) => RegisteredTool)[] = [];
-
-    register(factory: (server: McpServer) => RegisteredTool): void {
-        this.toolFactories.push(factory);
-    }
-
-    getAllTools(server: McpServer): RegisteredTool[] {
-        return this.toolFactories.map(factory => factory(server));
-    }
-}
-
-export const toolsRegistry = new ToolsRegistry();
-
 export interface ITool<T extends ZodRawShape | undefined = undefined> {
     name: string;
     description: string;
@@ -22,7 +8,7 @@ export interface ITool<T extends ZodRawShape | undefined = undefined> {
     execute: ToolCallback<T>
 }
 
-export class ToolsRegistry2 {
+export class ToolsRegistry {
     private tools: ITool<ZodRawShape>[] = [];
 
     register<T extends ZodRawShape>(tool: ITool<T>): void {
@@ -39,4 +25,4 @@ export class ToolsRegistry2 {
     }
 }
 
-export const toolsRegistry2 = new ToolsRegistry2();
+export const toolsRegistry = new ToolsRegistry();

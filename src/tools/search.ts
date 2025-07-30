@@ -1,6 +1,6 @@
 import { CallToolResult, ServerNotification, ServerRequest } from '@modelcontextprotocol/sdk/types.js';
 import { getSpotifyApi } from '../spotifyApi';
-import { ITool, toolsRegistry2 } from '../toolsRegistry';
+import { ITool, toolsRegistry } from '../toolsRegistry';
 import { RequestHandlerExtra } from '@modelcontextprotocol/sdk/shared/protocol.js';
 import { z } from 'zod'; 
 
@@ -57,4 +57,4 @@ export class SearchTool implements ITool<typeof searchArgsSchema> {
     }
 }
 
-toolsRegistry2.register(new SearchTool());
+toolsRegistry.register(new SearchTool());

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { CallToolResult, ServerNotification, ServerRequest } from "@modelcontextprotocol/sdk/types.js";
 import { getSpotifyApi } from '../spotifyApi';
-import { ITool, toolsRegistry2 } from '../toolsRegistry';
+import { ITool, toolsRegistry } from '../toolsRegistry';
 import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 
 const getRecommendationsSchema = {
@@ -127,4 +127,4 @@ export class GetRecommendationsTool implements ITool<typeof getRecommendationsSc
     }
 }
 
-toolsRegistry2.register(new GetRecommendationsTool());
+toolsRegistry.register(new GetRecommendationsTool());
