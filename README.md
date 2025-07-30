@@ -85,7 +85,9 @@ npm install
    - Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
    - Create a new application
    - Note your Client ID and Client Secret
-   - Add redirect URIs as needed for your OAuth flow
+   - Add the following redirect URIs for VS Code:
+     - `http://localhost:33418`
+     - `https://vscode.dev/redirect`
 
 4. Compile TypeScript:
 ```bash

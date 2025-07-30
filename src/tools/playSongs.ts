@@ -3,9 +3,18 @@ import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { getSpotifyApi } from '../spotifyApi';
 import { toolsRegistry } from '../toolsRegistry';
 
+// Helper function to determine URI type
+function getUriType(uri: string): 'track' | 'album' | 'playlist' | 'unknown' {
+    // Handle both spotify: URIs and HTTP URLs
+    if (uri.includes(':track:') || uri.includes('/track/')) return 'track';
+    if (uri.includes(':album:') || uri.includes('/album/')) return 'album';
+    if (uri.includes(':playlist:') || uri.includes('/playlist/')) return 'playlist';
+    return 'unknown';
+}
+
 toolsRegistry.register((server) => server.tool(
     'play_songs',
-    'Start playing songs on a Spotify device. If no device is specified, will use the currently active device or list available devices.',
+    'Start playing tracks, albums, or playlists on a Spotify device. If no device is specified, will use the currently active device or list available devices.',
     {
         uris: z.array(z.string()).describe("Array of Spotify URIs (tracks, albums, playlists) to play"),
         device_name: z.string().optional().describe("Optional name of the Spotify device to play on (e.g., 'Kitchen', 'Office')"),
@@ -34,6 +43,19 @@ toolsRegistry.register((server) => server.tool(
         }
 
         const spotify = getSpotifyApi(authInfo);
+
+        // Separate URIs by type
+        const trackUris: string[] = [];
+        const contextUris: string[] = [];
+        
+        for (const uri of uris) {
+            const uriType = getUriType(uri);
+            if (uriType === 'track') {
+                trackUris.push(uri);
+            } else if (uriType === 'album' || uriType === 'playlist') {
+                contextUris.push(uri);
+            }
+        }
 
         try {
             let deviceId: string | undefined = undefined;
@@ -102,8 +124,37 @@ toolsRegistry.register((server) => server.tool(
                 }
             }
 
-            // Start playback
-            await spotify.player.startResumePlayback(deviceId, undefined, uris);
+            // Start playback based on URI types
+            let playedContent = '';
+            
+            if (contextUris.length > 0) {
+                // Play context URI (album/playlist) - only one can be played at a time
+                const contextUri = contextUris[0];
+                await spotify.player.startResumePlayback(deviceId, contextUri);
+                
+                playedContent = `Started playing ${getUriType(contextUri)}: ${contextUri}`;
+                
+                // Warn if there are multiple context URIs or track URIs that will be ignored
+                if (contextUris.length > 1) {
+                    playedContent += `\nNote: Only the first ${getUriType(contextUri)} was played. Additional context URIs were ignored: ${contextUris.slice(1).join(', ')}`;
+                }
+                if (trackUris.length > 0) {
+                    playedContent += `\nNote: Track URIs were ignored when playing ${getUriType(contextUri)}: ${trackUris.join(', ')}`;
+                }
+            } else if (trackUris.length > 0) {
+                // Play individual tracks
+                await spotify.player.startResumePlayback(deviceId, undefined, trackUris);
+                playedContent = `Successfully started playing ${trackUris.length} track(s):\n${trackUris.map((uri, index) => `${index + 1}. ${uri}`).join('\n')}`;
+            } else {
+                return {
+                    content: [
+                        {
+                            type: 'text',
+                            text: 'No valid Spotify URIs found. Please provide track, album, or playlist URIs.',
+                        },
+                    ],
+                };
+            }
 
             // Get device name for the success message
             const selectedDevice = devices.devices.find(device => device.id === deviceId);
@@ -113,7 +164,7 @@ toolsRegistry.register((server) => server.tool(
                 content: [
                     {
                         type: 'text',
-                        text: `Successfully started playing ${uris.length} track(s) on device ${deviceInfo}:\n${uris.map((uri, index) => `${index + 1}. ${uri}`).join('\n')}`,
+                        text: `${playedContent}\nPlaying on device: ${deviceInfo}`,
                     },
                 ],
             };

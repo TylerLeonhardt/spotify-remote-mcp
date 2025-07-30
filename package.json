@@ -1,10 +1,16 @@
 {
   "name": "spotify-remote-mcp",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
   "scripts": {
     "compile": "tsc",
-    "start": "node ./dist/index.js",
+    "build": "node build.js",
+    "build:tsc": "tsc",
+    "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -19,6 +25,7 @@
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/node": "^22.0.2",
+    "esbuild": "^0.25.8",
     "typescript": "^5.5.4"
   }
 }
