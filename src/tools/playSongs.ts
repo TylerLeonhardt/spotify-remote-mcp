@@ -1,7 +1,8 @@
 import { z } from "zod";
-import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+import { CallToolResult, ServerNotification, ServerRequest } from "@modelcontextprotocol/sdk/types.js";
 import { getSpotifyApi } from '../spotifyApi';
-import { toolsRegistry } from '../toolsRegistry';
+import { ITool, toolsRegistry2 } from '../toolsRegistry';
+import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 
 // Helper function to determine URI type
 function getUriType(uri: string): 'track' | 'album' | 'playlist' | 'unknown' {
@@ -12,14 +13,18 @@ function getUriType(uri: string): 'track' | 'album' | 'playlist' | 'unknown' {
     return 'unknown';
 }
 
-toolsRegistry.register((server) => server.tool(
-    'play_songs',
-    'Start playing tracks, albums, or playlists on a Spotify device. If no device is specified, will use the currently active device or list available devices.',
-    {
+export class PlaySongsTool implements ITool<{
+    uris: z.ZodArray<z.ZodString>;
+    device_name: z.ZodOptional<z.ZodString>;
+}> {
+    name = 'play_songs';
+    description = 'Start playing tracks, albums, or playlists on a Spotify device. If no device is specified, will use the currently active device or list available devices.';
+    argsSchema = {
         uris: z.array(z.string()).describe("Array of Spotify URIs (tracks, albums, playlists) to play"),
         device_name: z.string().optional().describe("Optional name of the Spotify device to play on (e.g., 'Kitchen', 'Office')"),
-    },
-    async ({ uris, device_name }, { authInfo }): Promise<CallToolResult> => {
+    };
+
+    async execute({ uris, device_name }: { uris: string[]; device_name?: string }, { authInfo }: RequestHandlerExtra<ServerRequest, ServerNotification>): Promise<CallToolResult> {
         if (!authInfo) {
             return {
                 content: [
@@ -192,4 +197,6 @@ toolsRegistry.register((server) => server.tool(
             };
         }
     }
-));
+}
+
+toolsRegistry2.register(new PlaySongsTool());
