@@ -1,12 +1,13 @@
-import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+import { CallToolResult, ServerNotification, ServerRequest } from "@modelcontextprotocol/sdk/types.js";
 import { getSpotifyApi } from '../spotifyApi';
-import { toolsRegistry } from '../toolsRegistry';
+import { ITool, toolsRegistry2, ToolsRegistry2 } from '../toolsRegistry';
+import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 
-toolsRegistry.register((server) => server.tool(
-    'whoami',
-    'A tool that returns the authenticated user\'s information',
-    {},
-    async (_args, { authInfo }): Promise<CallToolResult> => {
+export class WhoAmITool implements ITool<{}> {
+    name = 'whoami';
+    description = 'A tool that returns the authenticated user\'s information';
+    argsSchema = {};
+    async execute(_args: {}, { authInfo }: RequestHandlerExtra<ServerRequest, ServerNotification>): Promise<CallToolResult> {
         if (!authInfo) {
             return {
                 content: [
@@ -15,11 +16,12 @@ toolsRegistry.register((server) => server.tool(
                         text: 'You are not authenticated.',
                     },
                 ],
-            }
+            };
         }
+
         const spotify = getSpotifyApi(authInfo);
         const result = await spotify.currentUser.profile();
-        
+
         return {
             content: [
                 {
@@ -29,4 +31,5 @@ toolsRegistry.register((server) => server.tool(
             ],
         };
     }
-));
+}
+toolsRegistry2.register(new WhoAmITool());
