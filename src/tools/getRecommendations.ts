@@ -41,7 +41,7 @@ const getRecommendationsSchema = {
         max_tempo: z.number().min(0).max(250).optional().describe("Maximum tempo in BPM (0-250)"),
         min_valence: z.number().min(0).max(100).optional().describe("Minimum valence/positivity value (0-100)"),
         max_valence: z.number().min(0).max(100).optional().describe("Maximum valence/positivity value (0-100)"),
-        limit: z.number().min(1).max(100).default(10).describe("The number of recommendations to return (1-100)")
+        limit: z.number().min(1).max(100).default(10).optional().describe("The number of recommendations to return (1-100)")
 };
 
 export class GetRecommendationsTool implements ITool<typeof getRecommendationsSchema> {

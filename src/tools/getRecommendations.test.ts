@@ -294,7 +294,7 @@ describe('GetRecommendationsTool', () => {
             mockSpotifyApi.recommendations.get.mockResolvedValue(mockResponse);
 
             const result = await tool.execute(
-                { seed_genres: ['test'] },
+                { seed_genres: ['pop'] },
                 { authInfo: mockAuthInfo } as any
             );
 
@@ -325,7 +325,7 @@ describe('GetRecommendationsTool', () => {
             mockSpotifyApi.recommendations.get.mockResolvedValue(mockResponse);
 
             const result = await tool.execute(
-                { seed_genres: ['collaboration'] },
+                { seed_genres: ['pop'] },
                 { authInfo: mockAuthInfo } as any
             );
 
@@ -351,7 +351,7 @@ describe('GetRecommendationsTool', () => {
             mockSpotifyApi.recommendations.get.mockResolvedValue(mockResponse);
 
             const result = await tool.execute(
-                { seed_genres: ['complete'] },
+                { seed_genres: ['pop'] },
                 { authInfo: mockAuthInfo } as any
             );
 
