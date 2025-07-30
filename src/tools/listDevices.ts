@@ -1,15 +1,14 @@
-import { z } from "zod";
-import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+import { CallToolResult, ServerNotification, ServerRequest } from "@modelcontextprotocol/sdk/types.js";
 import { getSpotifyApi } from '../spotifyApi';
-import { toolsRegistry } from '../toolsRegistry';
+import { ITool, toolsRegistry2 } from '../toolsRegistry';
+import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 
-toolsRegistry.register((server) => server.tool(
-    'list_devices',
-    'List available Spotify Connect devices that can be used for playback',
-    {
-        // No parameters needed
-    },
-    async (_args, { authInfo }): Promise<CallToolResult> => {
+export class ListDevicesTool implements ITool<{}> {
+    name = 'list_devices';
+    description = 'List available Spotify Connect devices that can be used for playback';
+    argsSchema = {};
+    
+    async execute(_args: {}, { authInfo }: RequestHandlerExtra<ServerRequest, ServerNotification>): Promise<CallToolResult> {
         if (!authInfo) {
             return {
                 content: [
@@ -18,7 +17,7 @@ toolsRegistry.register((server) => server.tool(
                         text: 'You are not authenticated.',
                     },
                 ],
-            }
+            };
         }
 
         const spotify = getSpotifyApi(authInfo);
@@ -62,4 +61,6 @@ toolsRegistry.register((server) => server.tool(
             };
         }
     }
-));
+}
+
+toolsRegistry2.register(new ListDevicesTool());
