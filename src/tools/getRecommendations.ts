@@ -1,12 +1,10 @@
 import { z } from "zod";
-import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+import { CallToolResult, ServerNotification, ServerRequest } from "@modelcontextprotocol/sdk/types.js";
 import { getSpotifyApi } from '../spotifyApi';
-import { toolsRegistry } from '../toolsRegistry';
+import { ITool, toolsRegistry2 } from '../toolsRegistry';
+import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 
-toolsRegistry.register((server) => server.tool(
-    'get_recommendations',
-    'Call Spotify\'s API to get track recommendations',
-    {
+const getRecommendationsSchema = {
         seed_genres: z.array(z.enum([
             "acoustic", "afrobeat", "alt-rock", "alternative", "ambient", "anime", "black-metal", "bluegrass", "blues",
             "bossanova", "brazil", "breakbeat", "british", "cantopop", "chicago-house", "children", "chill", "classical",
@@ -43,9 +41,15 @@ toolsRegistry.register((server) => server.tool(
         max_tempo: z.number().min(0).max(250).optional().describe("Maximum tempo in BPM (0-250)"),
         min_valence: z.number().min(0).max(100).optional().describe("Minimum valence/positivity value (0-100)"),
         max_valence: z.number().min(0).max(100).optional().describe("Maximum valence/positivity value (0-100)"),
-        limit: z.number().min(1).max(100).default(10).describe("The number of recommendations to return (1-100)")
-    },
-    async ({ seed_genres, limit, ...audioFeatures }, { authInfo }): Promise<CallToolResult> => {
+        limit: z.number().min(1).max(100).default(10).optional().describe("The number of recommendations to return (1-100)")
+};
+
+export class GetRecommendationsTool implements ITool<typeof getRecommendationsSchema> {
+    name = 'get_recommendations';
+    description = 'Call Spotify\'s API to get track recommendations';
+    argsSchema = getRecommendationsSchema;
+    
+    async execute({ seed_genres, limit, ...audioFeatures }: z.infer<z.ZodObject<typeof getRecommendationsSchema>>, { authInfo }: RequestHandlerExtra<ServerRequest, ServerNotification>): Promise<CallToolResult> {
         if (!authInfo) {
             return {
                 content: [
@@ -121,4 +125,6 @@ toolsRegistry.register((server) => server.tool(
             };
         }
     }
-));
+}
+
+toolsRegistry2.register(new GetRecommendationsTool());
