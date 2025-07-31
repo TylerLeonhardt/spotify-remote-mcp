@@ -3,6 +3,7 @@ import { ToolsRegistry, ITool } from './toolsRegistry';
 import { McpServer, RegisteredTool } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { CallToolResult, ServerNotification, ServerRequest } from "@modelcontextprotocol/sdk/types.js";
 import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
+import { z } from 'zod';
 
 describe('ToolsRegistry', () => {
     let registry: ToolsRegistry;
@@ -52,13 +53,15 @@ describe('ToolsRegistry', () => {
         });
 
         it('should handle tools with complex schemas', () => {
-            const complexTool: ITool<any> = {
+            const complexSchema = {
+                param1: z.string(),
+                param2: z.number()
+            };
+            
+            const complexTool: ITool<typeof complexSchema> = {
                 name: 'complex-tool',
                 description: 'A tool with complex schema',
-                argsSchema: {
-                    param1: { type: 'string' },
-                    param2: { type: 'number' }
-                } as any,
+                argsSchema: complexSchema,
                 execute: vi.fn()
             };
 
@@ -155,17 +158,19 @@ describe('ToolsRegistry', () => {
         });
 
         it('should handle tools with different argument schemas', () => {
-            const stringTool: ITool<any> = {
+            const stringSchema = { text: z.string() };
+            const stringTool: ITool<typeof stringSchema> = {
                 name: 'string-tool',
                 description: 'Tool with string param',
-                argsSchema: { text: { type: 'string' } } as any,
+                argsSchema: stringSchema,
                 execute: vi.fn()
             };
 
-            const numberTool: ITool<any> = {
+            const numberSchema = { count: z.number() };
+            const numberTool: ITool<typeof numberSchema> = {
                 name: 'number-tool',
                 description: 'Tool with number param',
-                argsSchema: { count: { type: 'number' } } as any,
+                argsSchema: numberSchema,
                 execute: vi.fn()
             };
 
@@ -177,13 +182,13 @@ describe('ToolsRegistry', () => {
             expect(mockServer.tool).toHaveBeenCalledWith(
                 'string-tool',
                 'Tool with string param',
-                { text: { type: 'string' } },
+                { text: stringSchema.text },
                 stringTool.execute
             );
             expect(mockServer.tool).toHaveBeenCalledWith(
                 'number-tool',
                 'Tool with number param',
-                { count: { type: 'number' } },
+                { count: numberSchema.count },
                 numberTool.execute
             );
             expect(registeredTools).toHaveLength(2);

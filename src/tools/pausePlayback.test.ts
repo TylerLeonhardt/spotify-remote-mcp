@@ -207,15 +207,14 @@ describe('PausePlaybackTool', () => {
                 expect(result.content[0].text).toBe('No active playback found. Make sure Spotify is playing music on a device.');
             });
 
-            it('should fallback to pause without device_id when getPlaybackState fails', async () => {
+            it('should return error when getPlaybackState fails and no device_id provided', async () => {
                 mockSpotifyApi.player.getPlaybackState.mockRejectedValue(new Error('API Error'));
-                mockSpotifyApi.player.pausePlayback.mockResolvedValue(undefined);
                 
                 const result = await pausePlaybackTool.execute({}, mockRequestExtra);
                 
                 expect(mockSpotifyApi.player.getPlaybackState).toHaveBeenCalled();
-                expect(mockSpotifyApi.player.pausePlayback).toHaveBeenCalledWith(undefined);
-                expect(result.content[0].text).toBe('Playback paused successfully.');
+                expect(mockSpotifyApi.player.pausePlayback).not.toHaveBeenCalled();
+                expect(result.content[0].text).toBe('I don\'t see any active device. Please start playing music on a Spotify device first.');
             });
         });
 
@@ -401,7 +400,7 @@ describe('PausePlaybackTool', () => {
                 
                 mockSpotifyApi.player.pausePlayback.mockResolvedValue(undefined);
                 
-                const result = await pausePlaybackTool.execute(extraArgs as any, mockRequestExtra);
+                const result = await pausePlaybackTool.execute(extraArgs as Parameters<typeof pausePlaybackTool.execute>[0], mockRequestExtra);
                 
                 expect(mockSpotifyApi.player.pausePlayback).toHaveBeenCalledWith('test-device');
                 expect(result.content[0].text).toContain('Playback paused successfully');

@@ -71,9 +71,20 @@ export class SkipToNextTool implements ITool<typeof skipToNextArgsSchema> {
                 }
             }
 
+            if (!deviceId) {
+                return {
+                    content: [
+                        {
+                            type: 'text',
+                            text: 'I don\'t see any active device. Please start playing music on a Spotify device first.',
+                        },
+                    ],
+                };
+            }
+
             try {
                 // Skip to next track
-                await spotify.player.skipToNext(deviceId as any);
+                await spotify.player.skipToNext(deviceId);
             } catch (error) {
                 // Unfortunately, expected: https://github.com/spotify/spotify-web-api-ts-sdk/issues/127
                 if (!(error instanceof JsonParseError)) {

@@ -71,9 +71,20 @@ export class PausePlaybackTool implements ITool<typeof pausePlaybackArgsSchema> 
                 }
             }
             
+            if (!deviceId) {
+                return {
+                    content: [
+                        {
+                            type: 'text',
+                            text: 'I don\'t see any active device. Please start playing music on a Spotify device first.',
+                        },
+                    ],
+                };
+            }
+            
             try {
                 // Pause playback
-                await spotify.player.pausePlayback(deviceId as any);
+                await spotify.player.pausePlayback(deviceId);
             } catch (error) {
                 // Unfortunately, expected: https://github.com/spotify/spotify-web-api-ts-sdk/issues/127
                 if (!(error instanceof JsonParseError)) {

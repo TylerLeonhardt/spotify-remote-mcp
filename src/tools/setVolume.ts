@@ -74,7 +74,7 @@ export class SetVolumeTool implements ITool<typeof setVolumeArgsSchema> {
             }
 
             // Set volume
-            await spotify.player.setPlaybackVolume(args.volume_percent, deviceId as any);
+            await spotify.player.setPlaybackVolume(args.volume_percent, deviceId);
 
             return {
                 content: [

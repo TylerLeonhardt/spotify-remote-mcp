@@ -34,7 +34,7 @@ export class GetPlaybackStateTool implements ITool<typeof getPlaybackStateArgsSc
         const spotify = getSpotifyApi(authInfo);
         
         try {
-            const result = await spotify.player.getPlaybackState(args.market as any, args.additional_types);
+            const result = await spotify.player.getPlaybackState(args.market as Parameters<typeof spotify.player.getPlaybackState>[0], args.additional_types);
 
             if (!result) {
                 return {

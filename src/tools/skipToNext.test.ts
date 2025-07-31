@@ -207,15 +207,14 @@ describe('SkipToNextTool', () => {
                 expect(result.content[0].text).toBe('No active playback found. Make sure Spotify is playing music on a device.');
             });
 
-            it('should fallback to skip without device_id when getPlaybackState fails', async () => {
+            it('should return error when getPlaybackState fails and no device_id provided', async () => {
                 mockSpotifyApi.player.getPlaybackState.mockRejectedValue(new Error('API Error'));
-                mockSpotifyApi.player.skipToNext.mockResolvedValue(undefined);
                 
                 const result = await skipToNextTool.execute({}, mockRequestExtra);
                 
                 expect(mockSpotifyApi.player.getPlaybackState).toHaveBeenCalled();
-                expect(mockSpotifyApi.player.skipToNext).toHaveBeenCalledWith(undefined);
-                expect(result.content[0].text).toBe('Skipped to next track successfully.');
+                expect(mockSpotifyApi.player.skipToNext).not.toHaveBeenCalled();
+                expect(result.content[0].text).toBe('I don\'t see any active device. Please start playing music on a Spotify device first.');
             });
         });
 
@@ -418,7 +417,7 @@ describe('SkipToNextTool', () => {
                 
                 mockSpotifyApi.player.skipToNext.mockResolvedValue(undefined);
                 
-                const result = await skipToNextTool.execute(extraArgs as any, mockRequestExtra);
+                const result = await skipToNextTool.execute(extraArgs as Parameters<typeof skipToNextTool.execute>[0], mockRequestExtra);
                 
                 expect(mockSpotifyApi.player.skipToNext).toHaveBeenCalledWith('test-device');
                 expect(result.content[0].text).toContain('Skipped to next track successfully');

@@ -1,6 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type MockedFunction } from 'vitest';
 import { PlaySongsTool } from './playSongs';
 import { getSpotifyApi } from '../spotifyApi';
+import type { AuthInfo } from "@modelcontextprotocol/sdk/server/auth/types.js";
+import type { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
+import type { ServerRequest, ServerNotification } from "@modelcontextprotocol/sdk/types.js";
 
 // Mock the spotifyApi module
 vi.mock('../spotifyApi', () => ({
@@ -15,12 +18,41 @@ vi.mock('../spotifyApi', () => ({
 
 describe('PlaySongsTool', () => {
     let tool: PlaySongsTool;
-    let mockSpotifyApi: any;
-    let mockAuthInfo: any;
+    let mockSpotifyApi: {
+        player: {
+            getAvailableDevices: ReturnType<typeof vi.fn>;
+            getPlaybackState: ReturnType<typeof vi.fn>;
+            startResumePlayback: ReturnType<typeof vi.fn>;
+        }
+    };
+    let mockAuthInfo: AuthInfo;
+    let mockRequestExtra: RequestHandlerExtra<ServerRequest, ServerNotification>;
+    let mockRequestExtraNoAuth: RequestHandlerExtra<ServerRequest, ServerNotification>;
 
     beforeEach(() => {
         tool = new PlaySongsTool();
-        mockAuthInfo = { access_token: 'mock-token' };
+        mockAuthInfo = { 
+            token: 'mock-token',
+            expiresAt: Date.now() + 3600000,
+            clientId: 'mock-client-id',
+            scopes: ['user-read-playback-state']
+        };
+        
+        mockRequestExtra = {
+            authInfo: mockAuthInfo,
+            signal: new AbortController().signal,
+            requestId: 'test-request-id',
+            sendNotification: vi.fn(),
+            sendRequest: vi.fn()
+        };
+        
+        mockRequestExtraNoAuth = {
+            authInfo: undefined,
+            signal: new AbortController().signal,
+            requestId: 'test-request-id',
+            sendNotification: vi.fn(),
+            sendRequest: vi.fn()
+        };
         
         mockSpotifyApi = {
             player: {
@@ -30,7 +62,7 @@ describe('PlaySongsTool', () => {
             }
         };
         
-        (getSpotifyApi as any).mockReturnValue(mockSpotifyApi);
+        (getSpotifyApi as MockedFunction<typeof getSpotifyApi>).mockReturnValue(mockSpotifyApi as any);
     });
 
     describe('basic properties', () => {

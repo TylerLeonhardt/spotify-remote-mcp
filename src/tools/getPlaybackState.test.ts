@@ -363,7 +363,7 @@ describe('GetPlaybackStateTool', () => {
                     extraParam: 'should be ignored'
                 };
                 
-                const result = await getPlaybackStateTool.execute(extraArgs as any, mockRequestExtra);
+                const result = await getPlaybackStateTool.execute(extraArgs as Parameters<typeof getPlaybackStateTool.execute>[0], mockRequestExtra);
                 
                 expect(mockSpotifyApi.player.getPlaybackState).toHaveBeenCalledWith('US', 'track');
                 expect(result.content[0].text).toContain(JSON.stringify(mockPlaybackState, null, 2));

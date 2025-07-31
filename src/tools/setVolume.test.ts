@@ -213,7 +213,7 @@ describe('SetVolumeTool', () => {
                 expect(result.content[0].text).toBe('No active playback found. Make sure Spotify is playing music on a device.');
             });
 
-            it('should fallback to set volume without device_id when getPlaybackState fails', async () => {
+            it('should set volume with undefined deviceId when getPlaybackState fails and no device_id provided', async () => {
                 const volume = 40;
                 mockSpotifyApi.player.getPlaybackState.mockRejectedValue(new Error('API Error'));
                 mockSpotifyApi.player.setPlaybackVolume.mockResolvedValue(undefined);
@@ -474,7 +474,7 @@ describe('SetVolumeTool', () => {
                 
                 mockSpotifyApi.player.setPlaybackVolume.mockResolvedValue(undefined);
                 
-                const result = await setVolumeTool.execute(extraArgs as any, mockRequestExtra);
+                const result = await setVolumeTool.execute(extraArgs as Parameters<typeof setVolumeTool.execute>[0], mockRequestExtra);
                 
                 expect(mockSpotifyApi.player.setPlaybackVolume).toHaveBeenCalledWith(75, 'test-device');
                 expect(result.content[0].text).toContain('Volume set to 75%');
