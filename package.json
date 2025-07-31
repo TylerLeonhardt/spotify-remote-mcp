@@ -1,6 +1,7 @@
 {
   "name": "spotify-remote-mcp",
-  "version": "1.0.0",
+  "version": "0.1.0",
+  "private": true,
   "main": "./dist/index.js",
   "engines": {
     "node": ">=20.0.0",
@@ -18,9 +19,9 @@
     "check-types": "tsc --noEmit",
     "lint": "eslint src"
   },
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "author": "Tyler Leonhardt",
+  "license": "MIT",
+  "description": "An MCP server that lets AI assistants control Spotify - search music, play songs, and manage playback.",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.16.0",
     "@spotify/web-api-ts-sdk": "^1.2.0",

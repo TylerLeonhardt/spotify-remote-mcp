@@ -7,6 +7,7 @@ import { SpotifyApi } from "@spotify/web-api-ts-sdk";
  */
 export class JsonParseError extends Error { }
 
+// This is one big hack to prevent the automatic token refreshing.
 export function getSpotifyApi(authInfo: AuthInfo): SpotifyApi {
     const spotify = new SpotifyApi(
         {

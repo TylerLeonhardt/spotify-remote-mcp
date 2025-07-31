@@ -2,69 +2,33 @@
 
 > **⚠️ UNOFFICIAL PROJECT** - This is an unofficial Spotify integration. It is not affiliated with, endorsed, or supported by Spotify Technology S.A.
 
-A Model Context Protocol (MCP) server that provides Spotify integration capabilities through authenticated API access. This server allows AI assistants and other MCP clients to interact with Spotify's Web API to search for music, get recommendations, control playback, and access user profile information.
+An MCP server that lets AI assistants control Spotify - search music, play songs, and manage playback.
 
 ## Features
 
-- **Search**: Search for albums, artists, playlists, tracks, shows, episodes, and audiobooks
-- **Music Recommendations**: Get personalized track recommendations based on genres and audio features
-- **Playback Control**: Start playing songs on active Spotify devices with device selection by name
-- **Device Management**: List available Spotify Connect devices and target specific devices by name
-- **User Profile**: Access authenticated user's Spotify profile information
-- **OAuth2 Authentication**: Secure OAuth2 integration with Spotify's API
-- **Session Management**: Persistent session handling with resumability support
+- **🔍 Search**: Search for albums, artists, playlists, tracks, shows, episodes, and audiobooks
+- **🎵 Playback Control**: Start/pause playback, skip tracks, and control volume
+- **📱 Device Management**: List available Spotify Connect devices and target specific devices by name  
+- **👤 User Profile**: Access authenticated user's Spotify profile information
+- **🔐 OAuth2 Authentication**: Secure OAuth2 integration with Spotify's OpenID Connect configuration
 
 ## Tools Available
 
-### 1. `search`
-Search Spotify's catalog for music and content.
-
-**Parameters:**
-- `q` (string): Search query with optional field filters (album, artist, track, year, genre, etc.)
-- `type` (array): Item types to search for (album, artist, playlist, track, show, episode, audiobook)
-- `limit` (number): Maximum results per type (default: 20, max: 50)
-- `offset` (number): Pagination offset (default: 0)
-
-### 2. `get_recommendations`
-Get AI-powered track recommendations from Spotify.
-
-**Parameters:**
-- `seed_genres` (array): Required array of genre seeds
-- Audio feature filters (all optional):
-  - `min_acousticness` / `max_acousticness` (0-100)
-  - `min_danceability` / `max_danceability` (0-100)
-  - `min_energy` / `max_energy` (0-100)
-  - `min_instrumentalness` / `max_instrumentalness` (0-100)
-  - `min_liveness` / `max_liveness` (0-100)
-  - `min_loudness` / `max_loudness` (-60 to 0 dB)
-  - `min_popularity` / `max_popularity` (0-100)
-  - `min_speechiness` / `max_speechiness` (0-100)
-  - `min_tempo` / `max_tempo` (0-250 BPM)
-  - `min_valence` / `max_valence` (0-100)
-- `limit` (number): Number of recommendations (1-100, default: 10)
-
-### 3. `play_songs`
-Start playing songs on a Spotify device. Can target specific devices by name.
-
-**Parameters:**
-- `uris` (array): Spotify URIs for tracks, albums, or playlists to play
-- `device_name` (string, optional): Name of the Spotify device to play on (e.g., 'Kitchen', 'Office')
-
-### 4. `list_devices`
-List all available Spotify Connect devices that can be used for playback.
-
-**Parameters:** None
-
-**Returns:** List of available devices with their names, types, and status (active/inactive)
-
-### 5. `whoami`
-Get the authenticated user's Spotify profile information.
-
-**Parameters:** None
+| Tool | Description |
+|------|-------------|
+| `search` | Search Spotify catalog for tracks, albums, artists, playlists, etc. |
+| `play_songs` | Start playing music on Spotify devices |
+| `pause_playback` | Pause current playback |
+| `skip_to_next` | Skip to next track |
+| `skip_to_previous` | Skip to previous track |
+| `set_volume` | Adjust playback volume (0-100%) |
+| `get_playback_state` | Get current track and playback info |
+| `list_devices` | List available Spotify Connect devices |
+| `whoami` | Get user profile information |
 
 ## Prerequisites
 
-- Node.js 18+
+- Node.js 20+ (updated requirement)
 - A Spotify Developer Account
 - Spotify Premium account (required for playback control)
 
@@ -85,11 +49,11 @@ npm install
    - Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
    - Create a new application
    - Note your Client ID and Client Secret
-   - Add the following redirect URIs for VS Code:
+   - Add the following redirect URIs:
      - `http://localhost:33418`
      - `https://vscode.dev/redirect`
 
-4. Compile TypeScript:
+4. Build the project:
 ```bash
 npm run compile
 ```
@@ -105,13 +69,13 @@ npm start
 The server will start on port 3000 by default and expose the following endpoints:
 
 - `POST /mcp` - Main MCP protocol endpoint
-- `GET /mcp` - Server-Sent Events for MCP streaming
+- `GET /mcp` - Server-Sent Events for MCP streaming  
 - `DELETE /mcp` - Session termination endpoint
 - OAuth metadata endpoints for authentication discovery
 
 ### Authentication
 
-This MCP server uses OAuth2 Bearer token authentication. The server expects:
+This MCP server uses OAuth2 Bearer token authentication with dynamic metadata fetching from Spotify's OpenID Connect configuration.
 
 - **Required Scopes**: 
   - `user-read-private`
@@ -120,6 +84,7 @@ This MCP server uses OAuth2 Bearer token authentication. The server expects:
   - `user-modify-playback-state`
 
 - **Authentication Flow**: The server validates tokens by calling Spotify's `/v1/me` endpoint
+- **Metadata Source**: Dynamically fetched from `https://accounts.spotify.com/.well-known/openid-configuration`
 
 ### Connecting from MCP Clients
 
@@ -128,14 +93,16 @@ Configure your MCP client to connect to:
 - **Authentication**: Bearer token with valid Spotify access token
 - **Transport**: HTTP with SSE support for real-time updates
 
-Example client configuration:
+Example VS Code configuration:
 ```json
 {
-  "spotify-remote": {
-    "command": "node",
-    "args": ["dist/index.js"],
-    "env": {
-      "PORT": "3000"
+  "mcpServers": {
+    "spotify-remote": {
+      "command": "node",
+      "args": ["dist/index.js"],
+      "env": {
+        "PORT": "3000"
+      }
     }
   }
 }
@@ -145,92 +112,142 @@ Example client configuration:
 
 ### Core Components
 
-- **`index.ts`**: Main server setup with Express.js and OAuth2 authentication
+- **`index.ts`**: Main server with Express.js, OAuth2 auth, and session management
 - **`spotifyApi.ts`**: Spotify Web API SDK integration and authentication handling
-- **`toolsRegistry.ts`**: Dynamic tool registration system
+- **`toolsRegistry.ts`**: Dynamic tool registration system with TypeScript support
 - **`tools.contribution.ts`**: Tool imports and initialization
-- **`tools/`**: Individual tool implementations
+- **`tools/`**: Individual tool implementations with comprehensive error handling
 
 ### Key Features
 
-- **Session Management**: Persistent sessions with automatic resumability
-- **OAuth2 Integration**: Secure token validation with Spotify's API
-- **Transport Layer**: HTTP with Server-Sent Events for real-time communication
-- **Error Handling**: Comprehensive error handling with meaningful messages
+- **Dynamic OAuth Metadata**: Fetches configuration from Spotify's OpenID Connect endpoint
+- **Session Management**: Persistent sessions with automatic resumability via InMemoryEventStore
+- **Transport Layer**: HTTP with Server-Sent Events for real-time bidirectional communication
+- **Error Handling**: Comprehensive error handling with user-friendly messages
 - **Type Safety**: Full TypeScript implementation with Zod schema validation
+- **Testing**: Vitest test suite for all tools
 
 ## Development
 
-### Building
+### Building & Watching
 
 ```bash
+# Build once
 npm run compile
+
+# Watch for changes (TypeScript + ESBuild)
+npm run watch
+
+# Run tests
+npm test
 ```
 
 ### Project Structure
 
 ```
 src/
-├── index.ts                 # Main server entry point
-├── spotifyApi.ts           # Spotify API integration
-├── toolsRegistry.ts        # Tool registration system
-├── tools.contribution.ts   # Tool imports
-└── tools/                  # Individual tools
-    ├── search.ts           # Spotify search functionality
-    ├── getRecommendations.ts # Music recommendations
-    ├── playSongs.ts        # Playback control
-    └── whoami.ts           # User profile access
+├── index.ts                    # Main server entry point
+├── spotifyApi.ts              # Spotify API integration  
+├── toolsRegistry.ts           # Tool registration system
+├── tools.contribution.ts      # Tool imports
+└── tools/                     # Individual tool implementations
+    ├── search.ts              # Spotify search with filtering
+    ├── getPlaybackState.ts    # Current playback information
+    ├── playSongs.ts           # Start playback with device targeting
+    ├── pausePlayback.ts       # Pause control
+    ├── skipToNext.ts          # Next track
+    ├── skipToPrevious.ts      # Previous track
+    ├── setVolume.ts           # Volume control
+    ├── listDevices.ts         # Device discovery
+    ├── whoami.ts              # User profile
+    └── *.test.ts              # Comprehensive test coverage
 ```
 
 ### Adding New Tools
 
-1. Create a new file in `src/tools/`
-2. Implement the tool using the `toolsRegistry.register()` pattern
+1. Create a new file in `src/tools/` implementing the `ITool` interface
+2. Add corresponding test file
 3. Import the tool in `src/tools.contribution.ts`
+4. Build and test
 
 Example tool structure:
 ```typescript
-import { toolsRegistry } from '../toolsRegistry';
+import { ITool, toolsRegistry } from '../toolsRegistry';
 import { z } from 'zod';
 
-toolsRegistry.register((server) => server.tool(
-    'tool_name',
-    'Tool description',
-    {
-        // Zod schema for parameters
-    },
-    async (args, { authInfo }) => {
+export class MyTool implements ITool<typeof myArgsSchema> {
+    name = 'my_tool';
+    description = 'Tool description';
+    argsSchema = {
+        param: z.string().describe('Parameter description')
+    };
+    
+    async execute(args: MyArgs, { authInfo }: RequestHandlerExtra) {
         // Tool implementation
         return {
-            content: [
-                {
-                    type: 'text',
-                    text: 'Response text'
-                }
-            ]
+            content: [{
+                type: 'text',
+                text: 'Response text'
+            }]
         };
     }
-));
+}
+
+toolsRegistry.register(new MyTool());
+```
+
+## Error Handling
+
+The server provides comprehensive error handling for common scenarios:
+
+- **Authentication**: Clear messages for invalid/expired tokens
+- **Premium Requirements**: Specific errors for Premium-only features
+- **Device Issues**: Helpful messages for device targeting problems
+- **API Limits**: Graceful handling of rate limits and quota issues
+- **Network Issues**: Fallback behavior for connectivity problems
+
+## Deployment
+
+### Environment Variables
+
+- `PORT`: Server port (default: 3000)
+- `WEBSITE_HOSTNAME`: For production deployment (enables HTTPS URLs)
+
+### Azure Deployment
+
+The project includes Azure deployment configuration:
+
+```bash
+# Deploy to Azure
+az webapp deploy --resource-group myResourceGroup --name myapp --src-path dist/
 ```
 
 ## Limitations
 
 - Requires Spotify Premium for playback control features
-- Rate limited by Spotify's API limits
+- Rate limited by Spotify's API limits  
 - Geographic restrictions may apply to certain content
 - Device must be active for playback control
+- Some features may not be available in all markets
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
+3. Make your changes with tests
+4. Run `npm run compile` to ensure everything builds
 5. Submit a pull request
+
+## Testing
+
+```bash
+# Run all tests
+npm test
+```
 
 ## License
 
-ISC License
+MIT License
 
 ## Support
 
