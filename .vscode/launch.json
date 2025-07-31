@@ -9,46 +9,7 @@
       "env": {
         "NODE_ENV": "development"
       },
-      "preLaunchTask": "compile",
-      "outFiles": [
-        "${workspaceFolder}/dist/**/*.js"
-      ],
-      "sourceMaps": true,
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "console": "integratedTerminal",
-      "restart": true,
-      "runtimeArgs": ["--enable-source-maps"]
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Launch with Watch",
-      "program": "${workspaceFolder}/dist/index.js",
-      "env": {
-        "NODE_ENV": "development"
-      },
       "preLaunchTask": "watch",
-      "outFiles": [
-        "${workspaceFolder}/dist/**/*.js"
-      ],
-      "sourceMaps": true,
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "console": "integratedTerminal",
-      "restart": true,
-      "runtimeArgs": ["--enable-source-maps"]
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Launch without Build",
-      "program": "${workspaceFolder}/dist/index.js",
-      "env": {
-        "NODE_ENV": "development"
-      },
       "outFiles": [
         "${workspaceFolder}/dist/**/*.js"
       ],
