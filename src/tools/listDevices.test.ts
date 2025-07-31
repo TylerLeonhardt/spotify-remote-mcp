@@ -6,7 +6,15 @@ import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.j
 import { ServerRequest, ServerNotification } from "@modelcontextprotocol/sdk/types.js";
 
 // Mock the spotifyApi module
-vi.mock('../spotifyApi');
+vi.mock('../spotifyApi', () => ({
+    getSpotifyApi: vi.fn(),
+    JsonParseError: class JsonParseError extends Error {
+        constructor(message: string) {
+            super(message);
+            this.name = 'JsonParseError';
+        }
+    }
+}));
 
 const mockGetSpotifyApi = vi.mocked(getSpotifyApi);
 

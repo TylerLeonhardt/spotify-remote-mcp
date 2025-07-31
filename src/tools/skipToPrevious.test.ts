@@ -7,7 +7,13 @@ import { AuthInfo } from "@modelcontextprotocol/sdk/server/auth/types.js";
 
 // Mock the spotifyApi module
 vi.mock('../spotifyApi', () => ({
-    getSpotifyApi: vi.fn()
+    getSpotifyApi: vi.fn(),
+    JsonParseError: class JsonParseError extends Error {
+        constructor(message: string) {
+            super(message);
+            this.name = 'JsonParseError';
+        }
+    }
 }));
 
 describe('SkipToPreviousTool', () => {

@@ -4,7 +4,13 @@ import { getSpotifyApi } from '../spotifyApi';
 
 // Mock the spotifyApi module
 vi.mock('../spotifyApi', () => ({
-    getSpotifyApi: vi.fn()
+    getSpotifyApi: vi.fn(),
+    JsonParseError: class JsonParseError extends Error {
+        constructor(message: string) {
+            super(message);
+            this.name = 'JsonParseError';
+        }
+    }
 }));
 
 describe('PlaySongsTool', () => {
