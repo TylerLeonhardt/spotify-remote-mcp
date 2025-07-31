@@ -7,9 +7,9 @@ import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.j
 // Helper function to determine URI type
 function getUriType(uri: string): 'track' | 'album' | 'playlist' | 'unknown' {
     // Handle both spotify: URIs and HTTP URLs
-    if (uri.includes(':track:') || uri.includes('/track/')) return 'track';
-    if (uri.includes(':album:') || uri.includes('/album/')) return 'album';
-    if (uri.includes(':playlist:') || uri.includes('/playlist/')) return 'playlist';
+    if (uri.includes(':track:') || uri.includes('/track/')) {return 'track';}
+    if (uri.includes(':album:') || uri.includes('/album/')) {return 'album';}
+    if (uri.includes(':playlist:') || uri.includes('/playlist/')) {return 'playlist';}
     return 'unknown';
 }
 
@@ -33,7 +33,7 @@ export class PlaySongsTool implements ITool<{
                         text: 'You are not authenticated.',
                     },
                 ],
-            }
+            };
         }
 
         if (!uris || uris.length === 0) {
@@ -44,7 +44,7 @@ export class PlaySongsTool implements ITool<{
                         text: 'No URIs provided to play.',
                     },
                 ],
-            }
+            };
         }
 
         const spotify = getSpotifyApi(authInfo);

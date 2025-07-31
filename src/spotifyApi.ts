@@ -17,7 +17,7 @@ export function getSpotifyApi(authInfo: AuthInfo): SpotifyApi {
                     token_type: 'bearer',
                     refresh_token: 'bad',
                     expires: authInfo.expiresAt
-                }
+                };
             },
             setConfiguration(_configuration) {
 
@@ -29,7 +29,7 @@ export function getSpotifyApi(authInfo: AuthInfo): SpotifyApi {
                     token_type: 'bearer',
                     refresh_token: 'bad',
                     expires: authInfo.expiresAt
-                }
+                };
             },
             removeAccessToken() {
 

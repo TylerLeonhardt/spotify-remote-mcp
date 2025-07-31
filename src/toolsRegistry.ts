@@ -21,7 +21,7 @@ export class ToolsRegistry {
             tool.description,
             tool.argsSchema,
             tool.execute
-        ))
+        ));
     }
 }
 
