@@ -3,3 +3,8 @@ import './tools/search.js';
 import './tools/getRecommendations.js';
 import './tools/playSongs.js';
 import './tools/listDevices.js';
+import './tools/getPlaybackState.js';
+import './tools/pausePlayback.js';
+import './tools/skipToNext.js';
+import './tools/skipToPrevious.js';
+import './tools/setVolume.js';
