@@ -1,5 +1,5 @@
 import { CallToolResult, ServerNotification, ServerRequest } from "@modelcontextprotocol/sdk/types.js";
-import { getSpotifyApi } from '../spotifyApi';
+import { getSpotifyApi, JsonParseError } from '../spotifyApi';
 import { ITool, toolsRegistry } from '../toolsRegistry';
 import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 import { z } from 'zod';
@@ -71,8 +71,15 @@ export class SkipToNextTool implements ITool<typeof skipToNextArgsSchema> {
                 }
             }
 
-            // Skip to next track
-            await spotify.player.skipToNext(deviceId as any);
+            try {
+                // Skip to next track
+                await spotify.player.skipToNext(deviceId as any);
+            } catch (error) {
+                // Unfortunately, expected: https://github.com/spotify/spotify-web-api-ts-sdk/issues/127
+                if (!(error instanceof JsonParseError)) {
+                    throw error;
+                }
+            }
 
             return {
                 content: [

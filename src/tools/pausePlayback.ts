@@ -1,5 +1,5 @@
 import { CallToolResult, ServerNotification, ServerRequest } from "@modelcontextprotocol/sdk/types.js";
-import { getSpotifyApi } from '../spotifyApi';
+import { getSpotifyApi, JsonParseError } from '../spotifyApi';
 import { ITool, toolsRegistry } from '../toolsRegistry';
 import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 import { z } from 'zod';
@@ -70,9 +70,16 @@ export class PausePlaybackTool implements ITool<typeof pausePlaybackArgsSchema> 
                     deviceInfo = ` on device ${deviceId}`;
                 }
             }
-
-            // Pause playback
-            await spotify.player.pausePlayback(deviceId as any);
+            
+            try {
+                // Pause playback
+                await spotify.player.pausePlayback(deviceId as any);
+            } catch (error) {
+                // Unfortunately, expected: https://github.com/spotify/spotify-web-api-ts-sdk/issues/127
+                if (!(error instanceof JsonParseError)) {
+                    throw error;
+                }
+            }
 
             return {
                 content: [
