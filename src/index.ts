@@ -35,7 +35,7 @@ const app = express();
 app.use(express.json());
 
 // Create auth middleware for MCP endpoints
-const mcpServerUrl = process.env.WEBSITE_HOSTNAME ? new URL(`https://${process.env.WEBSITE_HOSTNAME}`) : new URL(`http://localhost:${MCP_PORT}`);
+const mcpServerUrl = process.env.WEBSITE_HOSTNAME ? new URL(`https://${process.env.WEBSITE_HOSTNAME}/mcp`) : new URL(`http://localhost:${MCP_PORT}/mcp`);
 
 // Fetch OAuth metadata from Spotify's well-known endpoint
 const fetchOAuthMetadata = async (): Promise<OAuthMetadata> => {
